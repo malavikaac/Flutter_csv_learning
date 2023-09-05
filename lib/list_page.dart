@@ -66,7 +66,7 @@ void addDataToCSV( List<List<dynamic>> dataToAdd) async {
         appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 211, 226, 252),
         title: const Text("CSV" ),
-        titleTextStyle: const TextStyle(color:Colors.black,fontSize: 40 ),
+        titleTextStyle: const TextStyle(color:Colors.black,fontSize: 41 ),
         centerTitle: true
       ),
       body: SingleChildScrollView(
