@@ -1,8 +1,7 @@
 import 'dart:io';
-
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+
 
 class ListPage extends StatefulWidget {
   const ListPage({Key? key}) : super(key: key);
@@ -17,8 +16,6 @@ class _ListPageState extends State<ListPage> {
   final idController = TextEditingController();
 final _csvFormKey = GlobalKey<FormState>();
   List<List<dynamic>> _data = [];
-  // List<List<dynamic>> _newData = [];
-
   
 
   @override
@@ -29,42 +26,37 @@ final _csvFormKey = GlobalKey<FormState>();
   } // Display the contents from the CSV file
 
   void _loadCSV() async {
-    final _rawData = await rootBundle.loadString("assets/mycsv.csv");
+      final File file = File("assets/mycsv.csv");
+    final _rawData = await file.readAsString();
+    setState(() {
     List<List<dynamic>> _listData =
     const CsvToListConverter().convert(_rawData);
-    
-    setState(() {
       _data = _listData;
           print(_data);
     });
   }
 
-void addDataToCSV( List<List<dynamic>> dataToAdd) async {
-  final File file = File("assets/mycsv.csv");
+ Future<void> _updateCSV( {required String id,required String name,required String age}) async {
+    final File file = File("assets/mycsv.csv");
+    List<List<dynamic>> csvData = [];
 
-  // Read the existing data from the CSV file
-  List<List<dynamic>> csvData = [];
+    if (await file.exists()) {
+      String fileContent = await file.readAsString();
+      csvData = CsvToListConverter().convert(fileContent);
+    }
 
-  if (await file.exists()) {
-    String fileContent = await file.readAsString();
-    csvData = CsvToListConverter().convert(fileContent);
+    csvData.add([id,name,age]);
+    String newCSVContent = ListToCsvConverter().convert(csvData);
+
+    await file.writeAsString(newCSVContent);
+   
   }
-
-  // Add new data to the existing data
-  csvData.addAll(dataToAdd);
-
-  // Convert the data back to CSV format
-  String csvContent = const ListToCsvConverter().convert(csvData);
-
-  // Write the updated data to the CSV file
-  await file.writeAsString(csvContent);
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 211, 226, 252),
+        backgroundColor: Color.fromARGB(255, 241, 229, 247),
         title: const Text("CSV" ),
         titleTextStyle: const TextStyle(color:Colors.black,fontSize: 41 ),
         centerTitle: true
@@ -77,7 +69,7 @@ void addDataToCSV( List<List<dynamic>> dataToAdd) async {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: TextField(
                       controller: idController,
                       decoration: const InputDecoration(
@@ -109,10 +101,10 @@ void addDataToCSV( List<List<dynamic>> dataToAdd) async {
                  ElevatedButton(
                   onPressed: (){
                     setState(() {
-                    _data.add([idController.text,nameController.text,ageController.text]);
-                    addDataToCSV(_data);
-                      
-                    
+                    _updateCSV(age:ageController.text,id:idController.text,name: nameController.text  );
+                  Future.delayed(const Duration(milliseconds: 500),(){
+                      _loadCSV();
+                  }); 
                     });
                   },
                    child: const Text("Sumbit"))
@@ -128,7 +120,7 @@ void addDataToCSV( List<List<dynamic>> dataToAdd) async {
                 itemBuilder: (_, index) {
                   return Card(
                     margin: const EdgeInsets.all(3),
-                    color: index == 0 ? Color.fromARGB(255, 255, 230, 167) : Colors.white,
+                    color: index == 0 ? Color.fromARGB(255, 232, 219, 250) : Color.fromARGB(255, 239, 224, 243),
                     child: ListTile(
                       leading: Text(_data[index][0].toString()),
                       title: Text(_data[index][1]),
